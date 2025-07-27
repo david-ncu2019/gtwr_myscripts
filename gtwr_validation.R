@@ -12,17 +12,17 @@ cat("Step 1: Loading configuration settings for GTWR validation...\n")
 
 CONFIG <- list(
   # --- File Paths ---
-  input_csv_path = "calibration_points2.csv",
-  output_directory = "gtwr_validation_results",
+  input_csv_path = "20250724_GTWR_InputData_MLCW_InSAR_All_Layer.csv",
+  output_directory = "GTWR_Validation/All_Layer",
   
   # --- Model Parameters ---
-  formula_string = "Layer_1 ~ CUMDISP",
+  formula_string = "All_Layer ~ CUMDISP",
   
   # --- GTWR Settings ---
-  st_bw = 23,                    # Pre-determined bandwidth
+  st_bw = 17,                    # Pre-determined bandwidth
   kernel_method = "bisquare",
   adaptive = TRUE,
-  lambda_param = 0.006,
+  lambda_param = 0.001,
   ksi_param_degrees = 0,
   temporal_units = "months",
   
