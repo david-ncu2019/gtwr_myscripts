@@ -12,7 +12,7 @@ cat("Step 1: Loading configuration settings for GTWR validation...\n")
 
 CONFIG <- list(
   # --- File Paths ---
-  input_csv_path = "20250724_GTWR_InputData_MLCW_InSAR_All_Layer.csv",
+  input_csv_path = "20250921_GTWR_InputData_MLCW_InSAR_All_Layer.csv",
   output_directory = "GTWR_Validation/All_Layer",
   
   # --- Model Parameters ---
@@ -314,6 +314,7 @@ for (i in seq_along(all_stations)) {
 }
 
 total_end_time <- Sys.time()
+# FIXED: Use proper quotes and simplified calculation
 total_time <- difftime(total_end_time, total_start_time, units = "mins")
 
 # ==============================================================================
@@ -322,9 +323,9 @@ total_time <- difftime(total_end_time, total_start_time, units = "mins")
 cat("\nStep 5: Finalizing validation results...\n")
 
 # Save validation summary
-# summary_file <- file.path(CONFIG$output_directory, "validation_summary.csv")
-# write.csv(validation_summary, summary_file, row.names = FALSE)
-# cat("   - Saved validation summary to", basename(summary_file), "\n")
+summary_file <- file.path(CONFIG$output_directory, "validation_summary.csv")
+write.csv(validation_summary, summary_file, row.names = FALSE)
+cat("   - Saved validation summary to", basename(summary_file), "\n")
 
 # Combine all results if requested
 if (CONFIG$combine_results && length(all_validation_results) > 0) {
@@ -342,9 +343,11 @@ if (CONFIG$combine_results && length(all_validation_results) > 0) {
 # ==============================================================================
 # SECTION 7: VALIDATION SUMMARY
 # ==============================================================================
-cat("\n" , rep("=", 60), "\n", sep = "")
+# FIXED: Simplified the separator line creation
+separator_line <- paste(rep("=", 60), collapse = "")
+cat("\n", separator_line, "\n", sep = "")
 cat("GTWR LEAVE-ONE-STATION-OUT VALIDATION COMPLETE\n")
-cat(rep("=", 60), "\n")
+cat(separator_line, "\n")
 
 cat("Total stations validated:", n_stations, "\n")
 cat("Total computation time:", round(as.numeric(total_time), 2), "minutes\n")
@@ -353,7 +356,9 @@ cat("Total predictions generated:", sum(validation_summary$n_predictions), "\n")
 
 cat("\nValidation approach:\n")
 cat("- Method: Leave-one-station-out cross-validation\n")
-cat("- Bandwidth:", CONFIG$st_bw, "(", ifelse(CONFIG$adaptive, "adaptive", "fixed"), ")\n")
+# FIXED: Simplified conditional statement in cat()
+bw_type <- ifelse(CONFIG$adaptive, "adaptive", "fixed")
+cat("- Bandwidth:", CONFIG$st_bw, "(", bw_type, ")\n")
 cat("- Kernel:", CONFIG$kernel_method, "\n")
 cat("- Lambda:", CONFIG$lambda_param, "\n")
 
@@ -367,9 +372,9 @@ if (CONFIG$combine_results) {
 cat("- Validation summary: validation_summary.csv\n")
 
 cat("\nNext steps for analysis:\n")
-cat("1. Calculate prediction accuracy metrics (RMSE, MAE, R²)\n")
+cat("1. Calculate prediction accuracy metrics (RMSE, MAE, R-squared)\n")
 cat("2. Analyze spatial patterns in prediction errors\n")
 cat("3. Compare predictions at excluded stations vs. observations\n")
 cat("4. Assess model stability across different station exclusions\n")
 
-cat(rep("=", 60), "\n")
+cat(separator_line, "\n")
