@@ -1,0 +1,35 @@
+{
+  "input_data": {
+    "regression_points_file": "new_points.csv",
+    "trained_model_file": "trained_models/gtnnwr_model_20250707_223334.pkl",
+    "original_train_data": "20250504_GTWR_InputData_MLCW_InSAR_Layer_1.csv"
+  },
+  
+  "data_columns": {
+    "x_column": ["CUMDISP"],
+    "spatial_column": ["X_TWD97", "Y_TWD97"],
+    "temp_column": ["monthly"],
+    "id_column": ["id"]
+  },
+  
+  "model_config": {
+    "dense_layers": [[2], [64, 32]],
+    "drop_out": 0.3,
+    "batch_norm": true,
+    "start_lr": 0.01,
+    "optimizer": "Adam",
+    "use_gpu": "auto"
+  },
+  
+  "prediction_settings": {
+    "batch_size": 64,
+    "scale_sync": true,
+    "use_model": "gtnnwr"
+  },
+  
+  "output": {
+    "save_predictions": true,
+    "output_prefix": "predictions",
+    "include_coefficients": true
+  }
+}
