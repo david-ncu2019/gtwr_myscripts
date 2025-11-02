@@ -171,6 +171,7 @@ def run_gtnnwr(data, config):
         "optimizer": optimizer_type,
         "optimizer_params": optimizer_params,
         "batch_norm": config["model_architecture"]["batch_norm"],
+        "model_save_path": "./gtnnwr_trained_models",
         "write_path": f"./results_{timestamp}",
         "model_name": model_name,
         "use_gpu": config["training"]["use_gpu"],
@@ -196,6 +197,12 @@ def run_gtnnwr(data, config):
         early_stop=config["training"]["early_stop"],
     )
 
+    # After gtnnwr_model.run(...), ADD THIS:
+    print("Loading best model for final evaluation...")
+    best_model_path = f"{gtnnwr_model._modelSavePath}/{gtnnwr_model._modelName}.pkl"
+    gtnnwr_model.load_model(best_model_path)
+    print(f"✓ Loaded best model from: {best_model_path}")
+
     print("✓ Training completed!")
     return gtnnwr_model, timestamp
 
@@ -207,9 +214,9 @@ def save_results(model, timestamp, config):
 
     # Create directories
     output_prefix = config["output"]["output_prefix"]
-    output_dir = f"{output_prefix}_output_{timestamp}"
-    configs_dir = "configs"
-    models_dir = "trained_models"
+    output_dir = os.path.join("gtnnwr_model_output", f"{output_prefix}_output_{timestamp}")
+    configs_dir = "gtnnwr_configs"
+    models_dir = "gtnnwr_trained_models"
 
     for directory in [output_dir, configs_dir, models_dir]:
         os.makedirs(directory, exist_ok=True)

@@ -15,85 +15,50 @@
   },
   
   "model_architecture": {
-    "dense_layers": [[3], [128, 64, 32]],
-    "drop_out": 0.4,
+    "dense_layers": [[3], [32, 16]],
+    "drop_out": 0.2,
     "batch_norm": true,
-    "start_lr": 0.005
+    "start_lr": 0.001
   },
   
   "training": {
     "optimizer": "Adam",
-    "max_epoch": 15000,
-    "early_stop": 800,
-    "batch_size": 64,
+    "max_epoch": 800,
+    "early_stop": 500,
+    "batch_size": 32,
     "use_gpu": true
   },
   
   "optimizer_params": {
-    "_comment_scheduling": "Choose ONE scheduler type and uncomment its parameters",
+    "_comment": "Supported schedulers: MultiStepLR, CosineAnnealingLR, CosineAnnealingWarmRestarts, Special, Constant",
     
     "scheduler": "MultiStepLR",
-    "weight_decay": 0.002,
+    "weight_decay": 0.0001,
+    "scheduler_milestones": [200, 400, 600],
+    "scheduler_gamma": 0.5,
     
-    "_comment_multistep": "MultiStepLR parameters - use with Adam, SGD, RMSprop, Adagrad",
-    "scheduler_milestones": [1000, 2500, 4000, 6000],
-    "scheduler_gamma": 0.8,
+    "_comment_cosine": "Alternative: CosineAnnealingLR",
+    "_scheduler": "CosineAnnealingLR",
+    "_scheduler_T_max": 800,
+    "_scheduler_eta_min": 0.00001,
     
-    "_comment_plateau": "ReduceLROnPlateau parameters - universal compatibility",
-    "_scheduler_patience": 500,
-    "_scheduler_factor": 0.5,
-    "_scheduler_threshold": 0.001,
-    "_scheduler_mode": "min",
-    
-    "_comment_cosine": "CosineAnnealingLR parameters - universal compatibility",
-    "_scheduler_T_max": 1000,
-    "_scheduler_eta_min": 0.0001,
-    
-    "_comment_step": "StepLR parameters - universal compatibility",
-    "_scheduler_step_size": 1000,
-    "_scheduler_gamma_step": 0.7,
-    
-    "_comment_exponential": "ExponentialLR parameters - universal compatibility",
-    "_scheduler_gamma_exp": 0.99,
-    
-    "_comment_optimizer_specific": "Optimizer-specific parameters - uncomment as needed",
-    
-    "_comment_adadelta": "Adadelta parameters - remove start_lr when using Adadelta",
-    "_rho": 0.95,
-    "_eps": 1e-6,
-    
-    "_comment_sgd": "SGD parameters",
-    "_momentum": 0.9,
-    "_nesterov": true,
-    
-    "_comment_rmsprop": "RMSprop parameters", 
-    "_alpha": 0.99,
-    "_eps_rmsprop": 1e-8,
-    "_centered": false,
-    
-    "_comment_adagrad": "Adagrad parameters",
-    "_lr_decay": 0,
-    "_eps_adagrad": 1e-8
+    "_comment_warm_restarts": "Alternative: CosineAnnealingWarmRestarts",
+    "_scheduler_alt2": "CosineAnnealingWarmRestarts",
+    "_scheduler_T_0": 100,
+    "_scheduler_T_mult": 2,
+    "_scheduler_eta_min_wr": 0.00001
   },
   
   "output": {
     "save_model": true,
     "save_coefficients": true,
     "save_predictions": true,
-    "output_prefix": "gtnnwr"
+    "output_prefix": "gtnnwr_layer1"
   },
   
-"experiment": {
-  "name": "GTNNWR_Layer1_DIFFDISP_Adam_MultiStepLR",
-  "description": "Experiment for Layer_1 ~ DIFFDISP",
-  "notes": "Layer_1 ~ DIFFDISP"
-  },
-  
-  "_usage_instructions": {
-    "_for_adam": "Use start_lr, weight_decay, MultiStepLR or CosineAnnealingLR",
-    "_for_sgd": "Use start_lr, weight_decay, momentum, nesterov, MultiStepLR recommended",
-    "_for_adadelta": "Remove start_lr, use rho, eps, weight_decay, CosineAnnealingLR recommended",
-    "_for_rmsprop": "Use start_lr, weight_decay, alpha, eps_rmsprop, any scheduler",
-    "_for_adagrad": "Use start_lr, weight_decay, eps_adagrad, lr_decay, any scheduler"
+  "experiment": {
+    "name": "Layer1_DIFFDISP_optimized",
+    "description": "Experiment for Layer_1 ~ DIFFDISP with MultiStepLR",
+    "notes": "Using MultiStepLR scheduler - reduces LR by 0.5x at epochs 200, 400, 600"
   }
 }
