@@ -10,14 +10,15 @@ cat("Step 1: Loading configuration settings...\n")
 
 CONFIG <- list(
   # --- File Paths ---
-  input_csv_path = "./calib_diffdisp/20251118_GWR_Input_MLCW_InSAR_Layer_All.csv",
+  input_csv_path = "./calib_diffdisp/20251124_GWR_Input_MLCW_InSAR_Layer_All.csv",
   output_directory = "GWR_Output_Layer_All",
   
   # --- Model Parameters ---
   formula_string = "Layer_All ~ DIFFDISP",
   
   # --- GWR Settings ---
-  kernel_method = "gaussian",
+  # bisquare, tricube, gaussian, exponential
+  kernel_method = "bisquare",
   adaptive_bandwidth = TRUE,
   bandwidth_approach = "CV",
   distance_metric = 2,
@@ -236,36 +237,39 @@ for (i in seq_along(unique_times)) {
     metadata_prefixed <- metadata_subset
     names(metadata_prefixed) <- paste0("input_", names(metadata_prefixed))
     
-    # Combine: metadata + coordinates + coefficients
+    # Remove problematic columns from coefficient_data
+    cols_to_remove <- c("CV_Score")  # Remove CV_Score (always 0)
+    coefficient_data_clean <- coefficient_data[, !names(coefficient_data) %in% cols_to_remove, drop = FALSE]
+    
+    # Combine: metadata + coordinates + coefficients (avoiding duplicates)
     result_data <- cbind(
       metadata_prefixed,
-      time_subset[, c(CONFIG$x_coord_name, CONFIG$y_coord_name)],
-      coefficient_data
+      coefficient_data_clean
     )
     
     # Add time value
     result_data$Time_value <- current_time
     
-    # Calculate predicted values
-    # predicted = Intercept + coef1*var1 + coef2*var2 + ...
-    result_data$predicted_value <- result_data$Intercept
+    # # Calculate predicted values
+    # # predicted = Intercept + coef1*var1 + coef2*var2 + ...
+    # result_data$predicted_value <- result_data$Intercept
     
-    for (pred_var in predictor_vars) {
-      coef_col <- pred_var
-      input_col <- paste0("input_", pred_var)
+    # for (pred_var in predictor_vars) {
+    #   coef_col <- pred_var
+    #   input_col <- paste0("input_", pred_var)
       
-      if (coef_col %in% names(result_data) && input_col %in% names(result_data)) {
-        result_data$predicted_value <- result_data$predicted_value + 
-          (result_data[[coef_col]] * result_data[[input_col]])
-      }
-    }
+    #   if (coef_col %in% names(result_data) && input_col %in% names(result_data)) {
+    #     result_data$predicted_value <- result_data$predicted_value + 
+    #       (result_data[[coef_col]] * result_data[[input_col]])
+    #   }
+    # }
     
-    # Calculate prediction errors
-    response_input_col <- paste0("input_", dependent_var)
-    if (response_input_col %in% names(result_data)) {
-      result_data$prediction_error <- result_data[[response_input_col]] - result_data$predicted_value
-      result_data$absolute_error <- abs(result_data$prediction_error)
-    }
+    # # Calculate prediction errors
+    # response_input_col <- paste0("input_", dependent_var)
+    # if (response_input_col %in% names(result_data)) {
+    #   result_data$prediction_error <- result_data[[response_input_col]] - result_data$predicted_value
+    #   result_data$absolute_error <- abs(result_data$prediction_error)
+    # }
     
     # Add bandwidth info
     result_data$bandwidth_used <- optimal_bw
@@ -345,12 +349,22 @@ for (i in seq_along(unique_times)) {
       stringsAsFactors = FALSE
     ))
     
-    # Print summary statistics
+    # Print comprehensive summary statistics
     if (CONFIG$verbose_output && !is.null(diagnostics)) {
-      cat("   - Model diagnostics:\n")
+      cat("   - GWR Model diagnostics:\n")
       cat("     * AICc:", round(AICc_val, 3), "\n")
       cat("     * R-squared:", round(R2_val, 3), "\n")
       cat("     * Adjusted R-squared:", round(adj_R2_val, 3), "\n")
+      cat("     * RSS:", round(RSS_val, 3), "\n")
+      cat("   - OLS Model diagnostics:\n")
+      cat("     * AIC:", round(ols_AIC_val, 3), "\n")
+      cat("     * R-squared:", round(ols_R2, 3), "\n")
+      cat("     * Adjusted R-squared:", round(ols_adj_R2, 3), "\n")
+      cat("     * RSS:", round(ols_RSS_val, 3), "\n")
+      cat("     * F-statistic:", round(ols_F_stat, 3), "(p =", round(ols_F_pval, 3), ")\n")
+      cat("   - Model comparison:\n")
+      cat("     * R² improvement (GWR - OLS):", round(R2_improvement, 3), "\n")
+      cat("     * AIC comparison (OLS - GWR AICc):", round(ols_AIC_val - AICc_val, 3), "\n")
     }
     
   }, error = function(e) {
